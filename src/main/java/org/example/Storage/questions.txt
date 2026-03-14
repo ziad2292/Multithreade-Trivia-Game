@@ -1,0 +1,10 @@
+What is the capital of France?,Geography,easy,Paris,Rome,Berlin,Madrid,A
+What planet is known as the Red Planet?,Science,easy,Earth,Mars,Jupiter,Saturn,B
+What is 5 + 7?,Math,easy,10,11,12,13,C
+Which ocean is the largest?,Geography,medium,Atlantic,Indian,Pacific,Arctic,C
+Who discovered gravity?,Science,medium,Newton,Einstein,Galileo,Tesla,A
+What is 12 * 8?,Math,medium,84,92,96,102,C
+Which country has the most population?,Geography,hard,USA,India,China,Brazil,C
+What is the chemical symbol for Gold?,Science,hard,Ag,Au,Gd,Go,B
+What is the square root of 144?,Math,easy,10,11,12,14,C
+Which continent is Egypt in?,Geography,easy,Africa,Asia,Europe,Australia,A
