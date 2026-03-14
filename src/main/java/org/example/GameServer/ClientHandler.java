@@ -1,5 +1,7 @@
 package org.example.GameServer;
 
+import org.example.Auth.AuthService;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,11 +52,49 @@ public class ClientHandler implements Runnable{
 
     private void handleMessage(String message) {
         //TODO: send message to game logic
-        if (message.equalsIgnoreCase("QUIT")) {
-            sendMessage("DISCONNECTED");
-            cleanup();
-        } else {
-            System.out.println("Message: " + message);
+        String[] parts = message.split(" ");
+
+        String command = parts[0];
+
+        switch (command) {
+
+            case "LOGIN":
+
+                if (parts.length != 3) {
+                    sendMessage("INVALID_COMMAND");
+                    return;
+                }
+
+                String loginResult =
+                        AuthService.login(parts[1], parts[2]);
+
+                sendMessage(loginResult);
+
+                break;
+
+            case "REGISTER":
+
+                if (parts.length != 4) {
+                    sendMessage("INVALID_COMMAND");
+                    return;
+                }
+
+                String registerResult =
+                        AuthService.register(parts[1], parts[2], parts[3]);
+
+                sendMessage(registerResult);
+
+                break;
+
+            case "QUIT":
+
+                sendMessage("DISCONNECTED");
+                cleanup();
+                break;
+
+            default:
+
+                sendMessage("UNKNOWN_COMMAND");
         }
     }
 

@@ -13,6 +13,8 @@ public class TriviaServer {
 
             System.out.println("Trivia Server Started...");
 
+            ServerInitializer.initialize();
+
             while (true) {
                 Socket clientSocket = serverSocket.accept();
 
