@@ -1,0 +1,8 @@
+Alice Johnson,alice,1234
+Bob Smith,bob,pass123
+Charlie Brown,charlie,qwerty
+Diana Adams,diana,abc123
+Ethan White,ethan,password
+Fatima Ali,fatima,hello123
+George Clark,george,george1
+Hana Hassan,hana,hana123
