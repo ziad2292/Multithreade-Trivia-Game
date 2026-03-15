@@ -10,7 +10,7 @@ public class LookUpServerMain {
 
     public static void main(String[] args) {
 
-        QuestionRepository.loadQuestions("storage/questions.txt");
+        QuestionRepository.loadQuestions("src/main/java/org/example/Storage/questions.txt");
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 

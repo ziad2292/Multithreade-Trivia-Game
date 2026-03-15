@@ -16,6 +16,7 @@ public class ClientHandler implements Runnable{
 
     public ClientHandler(Socket socket){
         this.socket = socket;
+        ConnectionManager.addClient(this);
     }
 
     @Override
@@ -105,3 +106,5 @@ public class ClientHandler implements Runnable{
         } catch (IOException ignored) {}
     }
 }
+
+
