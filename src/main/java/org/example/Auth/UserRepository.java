@@ -29,6 +29,7 @@ public class UserRepository {
 
         } catch (IOException e) {
             System.out.println("Could not load users file");
+            e.printStackTrace();
         }
     }
 
