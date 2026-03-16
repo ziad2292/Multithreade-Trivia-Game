@@ -23,5 +23,19 @@ public class ConnectionManager {
         return clients;
     }
 
+    //Maya
+    private static final List<ClientHandler> waitingPlayers = new ArrayList<>();
 
+    public static void addWaitingPlayer(ClientHandler player) {
+        waitingPlayers.add(player);
+
+        if (waitingPlayers.size() >= 2) {
+            startTeamGame();
+        }
+    }
+
+    private static void startTeamGame() {
+        System.out.println("Starting team game...");
+        // Add logic to start the team game
+    }
 }

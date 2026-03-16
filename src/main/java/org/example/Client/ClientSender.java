@@ -29,7 +29,7 @@ public class ClientSender implements Runnable{
 
                 output.println(input);
 
-                if (input.equalsIgnoreCase("QUIT")) {
+                if (input.equalsIgnoreCase("QUIT") || input.equals("-")) {
                     socket.close();
                     break;
                 }

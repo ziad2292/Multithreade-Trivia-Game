@@ -1,0 +1,8 @@
+alice,0
+bob,0
+charlie,0
+diana,0
+ethan,0
+fatima,0
+george,0
+hana,0

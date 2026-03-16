@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class QuestionRepository {
@@ -43,5 +45,15 @@ public class QuestionRepository {
 
     public static List<Question> getQuestions() {
         return questions;
+    }
+
+    //Maya
+    public static List<Question> getRandomQuestions(int count) {
+        if (questions.size() < count) {
+            return new ArrayList<>(questions); // Return all questions if fewer than count
+        }
+        List<Question> shuffled = new ArrayList<>(questions);
+        Collections.shuffle(shuffled);
+        return shuffled.subList(0, count);
     }
 }
