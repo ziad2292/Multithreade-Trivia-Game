@@ -80,6 +80,20 @@ public class ClientHandler implements Runnable{
         String[] parts = message.split(" ");
 
         String command = parts[0];
+        if ("ANSWER".equals(command)) {
+            if (parts.length < 2) {
+                sendMessage("ERROR Usage: ANSWER <A|B|C|D>");
+                return;
+            }
+
+            String submitResult = GameManager.submitAnswer(this, parts[1]);
+            if (submitResult.startsWith("ERROR") || submitResult.startsWith("INFO")) {
+                sendMessage(submitResult);
+            }
+            return;
+        }
+
+
 
         switch (command) {
 

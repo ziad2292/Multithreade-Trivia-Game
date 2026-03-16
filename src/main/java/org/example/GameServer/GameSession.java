@@ -1,5 +1,6 @@
 package org.example.GameServer;
 
+import org.example.LookUp.LookUpClient;
 import org.example.LookUp.QuestionRepository;
 import org.example.Models.Question;
 
@@ -107,7 +108,7 @@ public class GameSession implements Runnable {
     }
     @Override
     public void run() {
-        selectedQuestions = selectQuestions();
+        selectedQuestions = LookUpClient.requestQuestions(category, difficulty, questionCount);
 
         if (selectedQuestions.isEmpty()) {
             broadcast("ERROR No questions found for category='" + category + "' difficulty='" + difficulty + "'.");
@@ -297,24 +298,7 @@ public class GameSession implements Runnable {
         }
     }
 
-    private List<Question> selectQuestions() {
-        List<Question> filtered = new ArrayList<>();
 
-        for (Question question : QuestionRepository.getQuestions()) {
-            System.out.println("Questions : "+question.getText());
-            boolean categoryMatch = "ANY".equalsIgnoreCase(category)
-                    || question.getCategory().equalsIgnoreCase(category);
-            boolean difficultyMatch = "ANY".equalsIgnoreCase(difficulty)
-                    || question.getDifficulty().equalsIgnoreCase(difficulty);
-            if (categoryMatch && difficultyMatch) {
-                filtered.add(question);
-            }
-        }
-
-        Collections.shuffle(filtered);
-        int effectiveCount = Math.min(Math.max(1, questionCount), filtered.size());
-        return new ArrayList<>(filtered.subList(0, effectiveCount));
-    }
 
     private void broadcast(String message) {
         for (ClientHandler player : players) {
