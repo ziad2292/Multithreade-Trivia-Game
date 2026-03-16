@@ -42,6 +42,8 @@ public class QuestionRepository {
     }
 
     public static List<Question> getQuestions() {
+
+        System.out.println("question : "+questions);
         return questions;
     }
 }

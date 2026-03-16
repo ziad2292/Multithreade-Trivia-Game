@@ -1,0 +1,5 @@
+min_players_per_team=1
+max_players_per_team=4
+question_duration_seconds=15
+max_score_history_entries=10
+countdown_updates=10,5,3,2,1
