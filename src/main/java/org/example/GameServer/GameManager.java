@@ -401,6 +401,7 @@ public class GameManager {
                 + "10) HISTORY\n"
                 + "11) ADMIN_PANEL (admin user only)\n"
                 + "12) MENU\n"
+                + "13 LOGINA \n"
                 + "Use '-' to quit current game anytime or QUIT to disconnect.";
     }
 

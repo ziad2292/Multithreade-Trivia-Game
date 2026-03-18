@@ -117,10 +117,11 @@ public class ClientHandler implements Runnable{
                 break;
 
 
-            case "LOGIN AS ADMIN":
+            case "LOGINA":
+
 
                 if (parts.length != 3) {
-                    sendMessage("INVALID_COMMAND");
+                    sendMessage("In");
                     return;
                 }
 
@@ -129,7 +130,7 @@ public class ClientHandler implements Runnable{
 
                 sendMessage(loginAsAdminResult);
                 if (loginAsAdminResult.startsWith("200")) {
-                    username = parts[1];
+                    username = parts[3];
                     //Add you logic (Asmaa)
                     admin = true;
 
