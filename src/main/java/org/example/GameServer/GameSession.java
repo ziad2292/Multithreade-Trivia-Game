@@ -17,6 +17,7 @@ public class GameSession implements Runnable {
     private final Map<String, List<String>> questionDetails = new HashMap<>();
     private final Object questionLock = new Object();
     private final String category;
+
     private final String difficulty;
     private final int questionCount;
     private volatile boolean running; // vol =>imidiate update for other threads
@@ -212,6 +213,8 @@ public class GameSession implements Runnable {
 
         String correct = normalize(currentQuestion.getCorrectAnswer());
         boolean someoneCorrect = false;
+        int pointsForCorrect = scoreForDifficulty(currentQuestion.getDifficulty());
+
 
         for (ClientHandler player : players) {
             String username = player.getUsername();
@@ -226,9 +229,9 @@ public class GameSession implements Runnable {
             boolean isCorrect = correct.equals(answer);
             if (isCorrect) {
                 someoneCorrect = true;
-                scores.put(username, scores.get(username) + 10);
+                scores.put(username, scores.get(username) + pointsForCorrect);
                 questionDetails.get(username)
-                        .add(currentQuestion.getText() + " -> CORRECT (" + answer + ")");
+                        .add(currentQuestion.getText() + " -> CORRECT (" + answer + ", +" + pointsForCorrect + ")");
             } else {
                 questionDetails.get(username)
                         .add(currentQuestion.getText() + " -> WRONG (" + answer + ", correct=" + correct + ")");
@@ -276,6 +279,15 @@ public class GameSession implements Runnable {
                     .append(entry.getValue())
                     .append("\n");
         }
+        int bestScore = ranking.isEmpty() ? 0 : ranking.get(0).getValue();
+        List<String> winners = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : ranking) {
+            if (entry.getValue() == bestScore) {
+                winners.add(entry.getKey());
+            }
+        }
+
+        GameManager.recordSessionresults(selectedQuestions.size(), scores, winners);
 
         finalBoard.append("DETAILS:\n");
         for (Map.Entry<String, List<String>> detail : questionDetails.entrySet()) {
@@ -303,6 +315,20 @@ public class GameSession implements Runnable {
     private void broadcast(String message) {
         for (ClientHandler player : players) {
             player.sendMessage(message);
+        }
+    }
+
+    private int scoreForDifficulty(String difficultyValue) {
+        String normalizedDifficulty = normalize(difficultyValue);
+        switch (normalizedDifficulty) {
+            case "EASY":
+                return 10;
+            case "MEDIUM":
+                return 20;
+            case "HARD":
+                return 30;
+            default:
+                return 15;
         }
     }
 

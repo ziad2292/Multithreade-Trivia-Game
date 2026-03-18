@@ -2,16 +2,12 @@ package org.example.GameServer;
 
 import org.example.Models.TeamLobby;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.Collections.sort;
 
 public class GameManager {
     // TODO : validate the team sizes are equal
@@ -19,6 +15,14 @@ public class GameManager {
     private static final Map<String, TeamLobby> teams = new ConcurrentHashMap<>();
     private static final Map<String, String> userToTeam = new ConcurrentHashMap<>();
     private static final List<GameSession> activeGames = Collections.synchronizedList(new ArrayList<>());
+    private static int totalPlayedQuestion=0 ;
+    private static int highestScore=0;
+    private static final Map<String,Integer> mostWins= new ConcurrentHashMap<>();
+    private static final Set<ClientHandler> publicQueue = new LinkedHashSet<>();
+    private static final AtomicInteger publicRoomCounter = new AtomicInteger(1);
+    private static final Random random = new Random();
+    private static final int PUBLIC_ROOM_QUESTION_COUNT = 5;
+
 
     private GameManager() {
     }
@@ -37,9 +41,95 @@ public class GameManager {
     public static synchronized void onDisconnect(ClientHandler handler) {
         if (handler.getUsername() != null) {
             onlineUsers.remove(handler.getUsername());
+            publicQueue.remove(handler);
             leaveTeam(handler, false);
             quitCurrentGame(handler, false);
         }
+    }
+
+    public static synchronized String joinPublicRoom(ClientHandler player) {
+        if (!player.isLoggedIn()) {
+            return "ERROR You must login first.";
+        }
+
+        if (player.isInGame()) {
+            return "ERROR You are already in a game.";
+        }
+
+        if (userToTeam.containsKey(player.getUsername())) {
+            return "ERROR Leave your current team before joining the public room queue.";
+        }
+
+        if (publicQueue.contains(player)) {
+            return "INFO You are already waiting in the public room queue.";
+        }
+
+        publicQueue.add(player);
+        player.sendMessage("PUBLIC_QUEUE_JOINED waiting=" + publicQueue.size());
+        tryStartPublicRooms();
+        return "PUBLIC_QUEUE_JOINED waiting=" + publicQueue.size();
+    }
+    private static void tryStartPublicRooms() {
+        int minPlayers = Math.max(1, GameConfigRepo.getConfig().getMinPlayersPublicRoom());
+        int maxPlayers = Math.max(minPlayers, GameConfigRepo.getConfig().getMaxPlayersPublicRoom());
+
+        while (true) {
+            List<ClientHandler> eligible = new ArrayList<>();
+            for (ClientHandler queued : publicQueue) {
+                if (queued.isLoggedIn() && !queued.isInGame()
+                        && !userToTeam.containsKey(queued.getUsername())) {
+                    eligible.add(queued);
+                }
+            }
+
+            Set<ClientHandler> eligibleSet = new HashSet<>(eligible);
+            publicQueue.retainAll(eligibleSet);
+
+            if (eligible.size() < minPlayers) {
+                return;
+            }
+
+            Collections.shuffle(eligible, random);
+            int roomSize = Math.min(maxPlayers, eligible.size());
+            List<ClientHandler> participants = new ArrayList<>(eligible.subList(0, roomSize));
+            publicQueue.removeAll(participants);
+
+            String roomName = "PUBLIC_ROOM_" + publicRoomCounter.getAndIncrement();
+            Map<String, String> roomMap = new LinkedHashMap<>();
+            List<String> participantNames = new ArrayList<>();
+            for (ClientHandler participant : participants) {
+                roomMap.put(participant.getUsername(), roomName);
+                participantNames.add(participant.getUsername());
+            }
+
+            GameSession session = new GameSession(
+                    participants,
+                    "PUBLIC",
+                    "ANY",
+                    "ANY",
+                    PUBLIC_ROOM_QUESTION_COUNT,
+                    roomMap
+            );
+
+            activeGames.add(session);
+            session.start();
+
+            for (ClientHandler participant : participants) {
+                participant.sendMessage("PUBLIC_ROOM_MATCHED room=" + roomName + " players=" + participantNames);
+            }
+        }
+    }
+
+    public static synchronized String leavePublicRoom(ClientHandler player) {
+        if (!player.isLoggedIn()) {
+            return "ERROR You must login first.";
+        }
+
+        if (publicQueue.remove(player)) {
+            return "PUBLIC_QUEUE_LEFT";
+        }
+
+        return "INFO You are not in the public room queue.";
     }
 
     public static synchronized String createTeam(ClientHandler creator,
@@ -305,8 +395,12 @@ public class GameManager {
                 + "4) LEAVE_TEAM\n"
                 + "5) MY_TEAM\n"
                 + "6) START_TEAM_GAME <opponentTeamName> (team creator only)\n"
-                + "7) HISTORY\n"
-                + "8) MENU\n"
+                + "7) JOIN_PUBLIC\n"
+                + "8) LEAVE_PUBLIC\n"
+                + "9) PLAY_RANDOM <questionsCount>\n"
+                + "10) HISTORY\n"
+                + "11) ADMIN_PANEL (admin user only)\n"
+                + "12) MENU\n"
                 + "Use '-' to quit current game anytime or QUIT to disconnect.";
     }
 
@@ -321,6 +415,50 @@ public class GameManager {
         return null;
     }
 
+    public static void recordSessionresults(int questionsPlayed,
+                                            Map<String, Integer> finalScores,
+                                            List<String> winners) {
+        totalPlayedQuestion +=questionsPlayed;
+
+        for (Map.Entry<String, Integer> entry : finalScores.entrySet()) {
+            if (highestScore<entry.getValue()) {
+                highestScore=entry.getValue();
+            }
+            if(winners.contains(entry.getKey())) {
+                if (mostWins.containsKey(entry.getKey())) {
+                    mostWins.put(entry.getKey(),
+                            mostWins.get(entry.getKey()) + 1);
+                } else {
+                    mostWins.put(entry.getKey(), 1);
+                }
+            }
+
+
+
+        }
+
+
+    }
+    public static synchronized String getAdminPanelText() {
+
+        String maxKey = null;
+        int maxValue = Integer.MIN_VALUE;
+
+        for (Map.Entry<String, Integer> entry : mostWins.entrySet()) {
+            if (entry.getValue() > maxValue) {
+                maxValue = entry.getValue();
+                maxKey = entry.getKey();
+            }
+        }
+
+
+        return "ADMIN_PANEL\n"
+                + "Total players connected: " + countConnected() + "\n"
+                + "Player with most wins: " + maxKey + " (wins=" + maxValue + "times"+")\n"
+                + "Total questions played: " + totalPlayedQuestion + "\n"
+                + "Highest score ever recorded: " + highestScore;
+    }
+
     private static void notifyTeam(TeamLobby team, String message) {
         Set<ClientHandler> members = team.getMembers();
         for (ClientHandler member : members) {
@@ -333,5 +471,12 @@ public class GameManager {
             return "";
         }
         return teamName.trim().toUpperCase();
+    }
+    private static int countConnected(){
+        int count = 0;
+        for (String username : onlineUsers.keySet()) {
+                count++;
+        }
+        return count;
     }
 }

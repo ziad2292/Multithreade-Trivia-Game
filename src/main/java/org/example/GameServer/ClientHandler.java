@@ -17,6 +17,7 @@ public class ClientHandler implements Runnable{
     private PrintWriter output;
     private volatile boolean connected = true;
     private String username;
+    private boolean admin;
     private volatile GameSession activeGame;
 
     public ClientHandler(Socket socket){
@@ -129,10 +130,38 @@ public class ClientHandler implements Runnable{
                 sendMessage(loginAsAdminResult);
                 if (loginAsAdminResult.startsWith("200")) {
                     username = parts[1];
-                    //Add you logic
+                    //Add you logic (Asmaa)
+                    admin = true;
+
                 }
 
                 break;
+            case "JOIN_PUBLIC":
+
+                sendMessage(GameManager.joinPublicRoom(this));
+                break;
+
+            case "LEAVE_PUBLIC":
+
+                sendMessage(GameManager.leavePublicRoom(this));
+                break;
+
+            case "PLAY_RANDOM":
+
+                if (parts.length != 2) {
+                    sendMessage("ERROR Usage: PLAY_RANDOM <questionsCount>");
+                    return;
+                }
+
+                int randomQuestions = parseQuestionCount(parts[1]);
+                if (randomQuestions <= 0) {
+                    sendMessage("ERROR questionsCount must be a positive number.");
+                    return;
+                }
+
+                sendMessage(GameManager.startSingleGame(this, "ANY", "ANY", randomQuestions));
+                break;
+
 
             case "REGISTER":
 
@@ -232,6 +261,22 @@ public class ClientHandler implements Runnable{
                 }
                 sendMessage("HISTORY_END");
                 break;
+
+            case "ADMIN_PANEL":
+
+                if (!isLoggedIn()) {
+                    sendMessage("ERROR Please login first.");
+                    return;
+                }
+
+                if (!admin) {
+                    sendMessage("ERROR Access denied. Admin user only.");
+                    return;
+                }
+
+                sendMessage(GameManager.getAdminPanelText());
+                break;
+
 
             case "QUIT":
 

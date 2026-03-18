@@ -7,6 +7,8 @@ import java.util.List;
 
 public class GameConfig {
     private int minPlayersPerTeam = 1;
+    private int minPlayersPublicRoom = 2;
+    private int maxPlayersPublicRoom = 4;
     private int maxPlayersPerTeam = 4;
     private int questionDurationSeconds = 15;
     private int maxScoreHistoryEntries = 10;
@@ -18,6 +20,22 @@ public class GameConfig {
         countdownUpdates.add(3);
         countdownUpdates.add(2);
         countdownUpdates.add(1);
+    }
+
+    public int getMinPlayersPublicRoom() {
+        return minPlayersPublicRoom;
+    }
+
+    public void setMinPlayersPublicRoom(int minPlayersPublicRoom) {
+        this.minPlayersPublicRoom = Math.max(1, minPlayersPublicRoom);
+    }
+
+    public int getMaxPlayersPublicRoom() {
+        return maxPlayersPublicRoom;
+    }
+
+    public void setMaxPlayersPublicRoom(int maxPlayersPublicRoom) {
+        this.maxPlayersPublicRoom = Math.max(1, maxPlayersPublicRoom);
     }
 
     public int getMinPlayersPerTeam() {

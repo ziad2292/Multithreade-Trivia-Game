@@ -39,6 +39,8 @@ public class GameConfigRepo {
 
         System.out.println("Game config loaded: minPlayers=" + CONFIG.getMinPlayersPerTeam()
                 + ", maxPlayers=" + CONFIG.getMaxPlayersPerTeam()
+                + ", publicRoomMin=" + CONFIG.getMinPlayersPublicRoom()
+                + ", publicRoomMax=" + CONFIG.getMaxPlayersPublicRoom()
                 + ", questionDuration=" + CONFIG.getQuestionDurationSeconds() + "s");
     }
 
@@ -50,6 +52,12 @@ public class GameConfigRepo {
                     break;
                 case "max_players_per_team":
                     CONFIG.setMaxPlayersPerTeam(Integer.parseInt(value));
+                    break;
+                case "min_players_public_room":
+                    CONFIG.setMinPlayersPublicRoom(Integer.parseInt(value));
+                    break;
+                case "max_players_public_room":
+                    CONFIG.setMaxPlayersPublicRoom(Integer.parseInt(value));
                     break;
                 case "question_duration_seconds":
                     CONFIG.setQuestionDurationSeconds(Integer.parseInt(value));
