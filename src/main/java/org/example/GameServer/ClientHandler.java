@@ -115,6 +115,25 @@ public class ClientHandler implements Runnable{
 
                 break;
 
+
+            case "LOGIN AS ADMIN":
+
+                if (parts.length != 3) {
+                    sendMessage("INVALID_COMMAND");
+                    return;
+                }
+
+                String loginAsAdminResult =
+                        AuthService.loginAsAdmin(parts[1], parts[2]);
+
+                sendMessage(loginAsAdminResult);
+                if (loginAsAdminResult.startsWith("200")) {
+                    username = parts[1];
+                    //Add you logic
+                }
+
+                break;
+
             case "REGISTER":
 
                 if (parts.length != 4) {

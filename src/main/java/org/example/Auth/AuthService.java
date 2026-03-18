@@ -1,5 +1,6 @@
 package org.example.Auth;
 
+import org.example.Models.Admin;
 import org.example.Models.User;
 
 public class AuthService {
@@ -9,6 +10,19 @@ public class AuthService {
             return "404 USER_NOT_FOUND";
 
         User user = UserRepository.getUser(username);
+
+        if (!user.getPassword().equals(password))
+            return "401 UNAUTHORIZED";
+
+        return "200 LOGIN_SUCCESS";
+    }
+
+    public static String loginAsAdmin(String username, String password) {
+
+        if (!UserRepository.adminExists(username))
+            return "404 USER_NOT_FOUND";
+
+        Admin user = UserRepository.getAdmin(username);
 
         if (!user.getPassword().equals(password))
             return "401 UNAUTHORIZED";

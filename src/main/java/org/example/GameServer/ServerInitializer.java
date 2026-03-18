@@ -9,6 +9,7 @@ public class ServerInitializer {
         System.out.println("Loading server data...");
 
         UserRepository.loadUsers("src/main/java/org/example/Storage/users.txt");
+        UserRepository.loadAdmins("src/main/java/org/example/Storage/admins.txt");
 
         System.out.println("Server initialization complete");
     }
