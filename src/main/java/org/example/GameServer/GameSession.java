@@ -10,7 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameSession implements Runnable {
 
-    private final String mode; //single wla mutli
+    private final String mode; //single wala mutli
     private final List<ClientHandler> players = new CopyOnWriteArrayList<>(); // avoiding inconsitant behavior
     private final Map<String, String> userTeam = new HashMap<>(); // lel multi mode
     private final Map<String, Integer> scores = new LinkedHashMap<>();
@@ -24,7 +24,7 @@ public class GameSession implements Runnable {
     private volatile boolean forceclose;
     private Question currentQuestion;
     private final Map<String, String> currentAnswers = new HashMap<>();
-    private List<Question> selectedQuestions = new ArrayList<>();
+    private List<Question> selectedQuestions = new ArrayList<>(); // I need it also for admin pannel to get Total questions played
 
     public GameSession(Collection<ClientHandler> participants,
                        String mode,

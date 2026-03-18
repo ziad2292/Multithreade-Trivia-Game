@@ -14,7 +14,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameManager {
-    private static final Map<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>();
+    // TODO : validate the team sizes are equal
+    private static final Map<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>(); // for admin pannel to get online users
     private static final Map<String, TeamLobby> teams = new ConcurrentHashMap<>();
     private static final Map<String, String> userToTeam = new ConcurrentHashMap<>();
     private static final List<GameSession> activeGames = Collections.synchronizedList(new ArrayList<>());
@@ -29,6 +30,7 @@ public class GameManager {
     }
 
     public static synchronized boolean isUserOnline(String username) {
+
         return onlineUsers.containsKey(username);
     }
 
@@ -195,6 +197,7 @@ public class GameManager {
             return "ERROR Both teams must exist.";
         }
 
+        // el creatur that will start the game
         if (!teamA.getCreatorUsername().equals(creator.getUsername())) {
             return "ERROR Only team creator can start a team game.";
         }
@@ -329,6 +332,6 @@ public class GameManager {
         if (teamName == null) {
             return "";
         }
-        return teamName.trim().toUpperCase(Locale.ROOT);
+        return teamName.trim().toUpperCase();
     }
 }

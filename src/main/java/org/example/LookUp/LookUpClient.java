@@ -14,6 +14,7 @@ import java.util.Base64;
 import java.util.List;
 
 public class LookUpClient {
+
     public static List<Question> requestQuestions(String category,
                                                   String difficulty,
                                                   int questionCount) {
